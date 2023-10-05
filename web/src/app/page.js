@@ -45,13 +45,13 @@ export default function Home() {
           </a>
 
           <a
-            href={`/blog`}
+            href={`/news`}
             className={styles.card}
             target="_blank"
             rel="noopener noreferrer"
           >
             <h2>
-              Learn <span>-&gt;</span>
+              News <span>-&gt;</span>
             </h2>
             <p>Learn about the different aspects of trading.</p>
           </a>
