@@ -18,7 +18,7 @@ function iteratorToStream(iterator) {
 
 const fetchTrades = cache(async () => {
     const res = await fetch(
-        `https://data-api.binance.vision/api/v3/aggTrades?symbol=BTCUSDT`,
+        `https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1s`,
         {
             next: {
                 revalidate: 10

@@ -3,7 +3,7 @@ import 'server-only'
 
 const fetchBinanceBook = cache(async () => {
     const res = await fetch(
-        `https://data-api.binance.vision/api/v3/depth?symbol=BTCUSDT`,
+        `https://data-api.binance.vision/api/v3/depth?symbol=BTCUSDT&limit=5000`,
         {
             next: {
                 revalidate: 10
@@ -14,7 +14,7 @@ const fetchBinanceBook = cache(async () => {
     if (res.status !== 200) {
         throw new Error(`Status ${res.status}`)
     }
-    return res.json()
+    return res.json();
 })
 
-export default fetchBinanceBook
+export default fetchBinanceBook;

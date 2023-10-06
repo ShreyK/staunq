@@ -1,16 +1,6 @@
-import { Suspense } from 'react'
 import styles from './page.module.css'
 import fetchData from './lib/fetch-data'
-
-async function Card() {
-  const data = await fetchData()
-
-  return (
-    <div className={styles.cardBackground}>
-      BTC: {data[0].current_price}
-    </div>
-  )
-}
+import {Card} from '@/app/components/card'
 
 export default function Home() {
   return (
@@ -26,9 +16,7 @@ export default function Home() {
         </a>
 
         <div className={styles.center}>
-          <Suspense fallback={<div>Loading...</div>}>
             <Card />
-          </Suspense>
         </div>
 
         <div className={styles.grid}>

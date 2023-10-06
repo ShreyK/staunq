@@ -3,7 +3,7 @@ import 'server-only'
 
 const fetchData = cache(async () => {
     const res = await fetch(
-        `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&x_cg_api_key=${process.env.API_KEY}`,
+        `https://data-api.binance.vision/api/v3/trades?symbol=BTCUSDT`,
         {
             next: {
                 revalidate: 10

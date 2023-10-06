@@ -3,6 +3,7 @@ import fetchData from '@/app/lib/fetch-data'
 import styles from './view.module.css'
 import { Chart } from '@/app/components/chart';
 import fetchTrades from '@/app/lib/fetch-trades';
+import { Card } from '@/app/components/card';
 
 export const dynamicParams = true;
 
@@ -12,7 +13,6 @@ export async function generateStaticParams() {
 
 export default async function ViewPage({ params }) {
     const { page } = params
-    const data = await fetchData('')
     const trades = await fetchTrades('')
     const orderBook = await fetchBinanceBook('')
 
@@ -32,11 +32,8 @@ export default async function ViewPage({ params }) {
 
     return (
         <>
-            <div className={styles.cardBackground}>
-                BTC: {data[0].current_price}
-            </div>
-
-            <Chart data={trades} orderBook={orderBook}></Chart>
+            <Card />
+            <Chart trades={trades} orderBook={orderBook}></Chart>
             {/* <div className={styles.cardBackground}>
             </div>
 
