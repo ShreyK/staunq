@@ -1,5 +1,5 @@
+'use server'
 import { cache } from 'react'
-import 'server-only'
 
 const fetchData = cache(async () => {
     const res = await fetch(

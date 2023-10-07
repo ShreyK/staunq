@@ -1,5 +1,5 @@
+'use server'
 import { cache } from 'react'
-import 'server-only'
 
 // https://developer.mozilla.org/docs/Web/API/ReadableStream#convert_async_iterator_to_stream
 function iteratorToStream(iterator) {

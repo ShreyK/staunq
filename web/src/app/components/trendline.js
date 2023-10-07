@@ -1,8 +1,7 @@
 'use client'
 class TrendLinePaneRenderer {
-    constructor(p1, p2, text1, text2, options) {
+    constructor(p1, text1, text2, options) {
         this._p1 = p1
-        this._p2 = p2
         this._text1 = text1
         this._text2 = text2
         this._options = options
@@ -12,16 +11,14 @@ class TrendLinePaneRenderer {
         target.useBitmapCoordinateSpace(scope => {
             if (
                 this._p1.x === null ||
-                this._p1.y === null ||
-                this._p2.x === null ||
-                this._p2.y === null
+                this._p1.y === null 
             )
                 return
             const ctx = scope.context
             const x1Scaled = Math.round(this._p1.x * scope.horizontalPixelRatio)
             const y1Scaled = Math.round(this._p1.y * scope.verticalPixelRatio)
-            const x2Scaled = Math.round(this._p2.x * scope.horizontalPixelRatio)
-            const y2Scaled = Math.round(this._p2.y * scope.verticalPixelRatio)
+            const x2Scaled = Math.round((this._p1.x+10) * scope.horizontalPixelRatio)
+            const y2Scaled = Math.round(this._p1.y * scope.verticalPixelRatio)
             ctx.lineWidth = this._options.width
             ctx.strokeStyle = this._options.lineColor
             ctx.beginPath()
@@ -56,7 +53,6 @@ class TrendLinePaneRenderer {
 
 class TrendLinePaneView {
     _p1 = { x: null, y: null }
-    _p2 = { x: null, y: null }
     _text = { label: null }
 
     constructor(source) {
@@ -64,21 +60,15 @@ class TrendLinePaneView {
     }
 
     update() {
-        const series = this._source._series
-        const y1 = series.priceToCoordinate(this._source._p1.price)
-        const y2 = series.priceToCoordinate(this._source._p2.price)
-        const timeScale = this._source._chart.timeScale()
-        const x1 = timeScale.timeToCoordinate(this._source._p1.time)
-        const x2 = timeScale.timeToCoordinate(this._source._p2.time)
+        const y1 = this._source._series?.priceToCoordinate(this._source._p1.price)
+        const x1 = this._source._coord
         this._p1 = { x: x1, y: y1 }
-        this._p2 = { x: x2, y: y2 }
         this._text = { label: this._source._text }
     }
 
     renderer() {
         return new TrendLinePaneRenderer(
             this._p1,
-            this._p2,
             "" + this._text.label,
             "" + this._text.label,
             this._source._options
@@ -95,14 +85,14 @@ const defaultOptions = {
 }
 
 export class TrendLine {
-    constructor(chart, series, p1, p2, text, options) {
+    constructor(chart, series, p1, text, options) {
         this._chart = chart
         this._series = series
         this._p1 = p1
-        this._p2 = p2
         this._text = text
-        this._minPrice = Math.min(this._p1.price, this._p2.price)
-        this._maxPrice = Math.max(this._p1.price, this._p2.price)
+        this._coord = chart.timeScale().timeToCoordinate(p1.time)
+        this._minPrice = this._p1.price
+        this._maxPrice = this._p1.price
         this._options = {
             ...defaultOptions,
             ...options
@@ -112,9 +102,8 @@ export class TrendLine {
 
     autoscaleInfo(startTimePoint, endTimePoint) {
         const p1Index = this._pointIndex(this._p1)
-        const p2Index = this._pointIndex(this._p2)
-        if (p1Index === null || p2Index === null) return null
-        if (endTimePoint < p1Index || startTimePoint > p2Index) return null
+        if (p1Index === null) return null
+        if (endTimePoint < p1Index || startTimePoint > p1Index) return null
         return {
             priceRange: {
                 minValue: this._minPrice,
@@ -132,9 +121,8 @@ export class TrendLine {
     }
 
     _pointIndex(p) {
-        const coordinate = this._chart.timeScale().timeToCoordinate(p.time)
-        if (coordinate === null) return null
-        const index = this._chart.timeScale().coordinateToLogical(coordinate)
+        if (this._coord === null) return null
+        const index = this._chart.timeScale().coordinateToLogical(this._coord)
         return index
     }
 }

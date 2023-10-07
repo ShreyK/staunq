@@ -1,5 +1,4 @@
 import styles from './page.module.css'
-import fetchData from './lib/fetch-data'
 import {Card} from '@/app/components/card'
 
 export default function Home() {
@@ -17,6 +16,7 @@ export default function Home() {
 
         <div className={styles.center}>
             <Card />
+            <div id="chart" />
         </div>
 
         <div className={styles.grid}>
