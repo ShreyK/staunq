@@ -89,8 +89,8 @@ export async function Chart({ trades, orderBook }) {
 					vertLines: { color: colors.lineColor },
 					horzLines: { color: colors.lineColor }
 				},
-				width: 700,
-				height: 700,
+				width: Math.min(window.innerWidth - 10, 700),
+				height: Math.min(window.innerHeight/1.4, 700),
 				rightPriceScale: { autoScale: false },
 				timeScale: {
 					secondsVisible: true,
@@ -147,8 +147,8 @@ export async function Chart({ trades, orderBook }) {
 					currTime += 1
 					dataSorted[dataSorted.length - 1].time = currTime
 				} else {
-					
-				chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
+
+					chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
 				}
 				const bids = reduceOrderBook(orderBookResponse.bids)
 				const asks = reduceOrderBook(orderBookResponse.asks)
@@ -164,10 +164,8 @@ export async function Chart({ trades, orderBook }) {
 	}, [zoom, precision, threshold])
 
 	return (
-		<div
-			ref={chartContainerRef}
-			className={styles.center}>
-			<div style={{ display: 'flex', flexFlow: 'column' }}>
+		<>
+			<div className={styles.centerNoPadding} style={{ display: 'flex', flexFlow: 'row', gap: 10 }}>
 				<div>
 					<p>Precision: {precision}</p>
 					<input title='Precision' type={"range"} min="3" max="7" value={precision} onChange={(e) => startTransition(() => setPrecision(e.target.value))} />
@@ -177,6 +175,10 @@ export async function Chart({ trades, orderBook }) {
 					<input title='Threshold' type={"range"} min="0.5" max="5" step={.5} value={threshold} onChange={(e) => startTransition(() => setThreshold(e.target.value))} />
 				</div>
 			</div>
-		</div>
+			<div
+				ref={chartContainerRef}
+				className={styles.centerNoPadding}>
+			</div>
+		</>
 	);
 };
