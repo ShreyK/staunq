@@ -1,7 +1,12 @@
 import styles from './page.module.css'
-import {Card} from '@/app/components/card'
+import {Symbol} from '@/app/components/symbol'
+import fetchInfo from '@/app/lib/fetch-info';
+import fetchData from './lib/fetch-data';
 
-export default function Home() {
+export default async function Home(props) {
+  const defaultSymbol = props?.params?.id ?? "BTCUSDT"
+  const data = await fetchData(defaultSymbol)
+  const info = await fetchInfo()
   return (
       <main className={styles.main}>
         <a
@@ -15,7 +20,7 @@ export default function Home() {
         </a>
 
         <div className={styles.center}>
-            <Card />
+            <Symbol currentSymbol={defaultSymbol} info={info} data={data} />
             <div id="chart" />
         </div>
 
@@ -57,7 +62,7 @@ export default function Home() {
           </a>
 
           <a
-            href={`/view/BTC`}
+            href={`/view/BTCUSDT`}
             className={styles.card}
             target="_blank"
             rel="noopener noreferrer"
