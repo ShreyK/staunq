@@ -1,12 +1,12 @@
 'use server'
 import { cache } from 'react'
 
-const fetchData = cache(async (symbol) => {
+const fetchTrades = cache(async () => {
     const res = await fetch(
-        `https://data-api.binance.vision/api/v3/trades?symbol=${symbol}`,
+        `https://data-api.binance.vision/api/v3/exchangeInfo`,
         {
             next: {
-                revalidate: 1000
+                revalidate: ['info']
             }
         }
     )
@@ -16,5 +16,4 @@ const fetchData = cache(async (symbol) => {
     }
     return res.json()
 })
-
-export default fetchData
+export default fetchTrades

@@ -1,12 +1,12 @@
 'use server'
 import { cache } from 'react'
 
-const fetchBinanceBook = cache(async () => {
+const fetchBinanceBook = cache(async (defaultSymbol) => {
     const res = await fetch(
-        `https://data-api.binance.vision/api/v3/depth?symbol=BTCUSDT&limit=5000`,
+        `https://data-api.binance.vision/api/v3/depth?symbol=${defaultSymbol}&limit=5000`,
         {
             next: {
-                revalidate: 10
+                revalidate: 1000
             }
         }
     )

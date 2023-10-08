@@ -6,7 +6,7 @@ import { createChart, ColorType, LineStyle } from 'lightweight-charts';
 import fetchTrades from '../lib/fetch-trades';
 import fetchBinanceBook from '../lib/fetch-orderbook';
 
-export async function Chart({ trades, orderBook }) {
+export async function Chart({ trades, orderBook, symbol }) {
 	const colors = {
 		backgroundColor: 'black',
 		lineColor: '#1A1A1A',
@@ -15,15 +15,14 @@ export async function Chart({ trades, orderBook }) {
 		areaBottomColor: 'rgba(41, 98, 255, 0.28)',
 	}
 
-	const rightMarginPosition = 10;
+	const rightMarginPosition = 20;
 	const chartContainerRef = useRef();
 	const [threshold, setThreshold] = useState(5)
 	const [precision, setPrecision] = useState(5)
 	const dataSorted = trades.sort((a, b) => a[0] > b[0]).map((value) => ({ time: Number(value[0]), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
-	let currTime = null
 	const chartInstanceRef = useRef(null)
 	const chartSeriesInstanceRef = useRef(null)
-	const priceLineArray = []
+	const [priceLineArray, _] = useState([])
 
 	const handleResize = () => {
 		chartInstanceRef.current?.applyOptions({ width: chartContainerRef.current.clientWidth });
@@ -46,7 +45,7 @@ export async function Chart({ trades, orderBook }) {
 	const renderOrderBookData = (lineColor, reducedArray, dataSorted) => {
 		reducedArray.map((value) => {
 			const price = value[0]
-			const quantity = value[1].toPrecision(precision)
+			const quantity = value[1].toPrecision(4)
 			if (Number(value[1]) < threshold) {
 				return null
 			}
@@ -60,6 +59,7 @@ export async function Chart({ trades, orderBook }) {
 						lineStyle: LineStyle.Dotted,
 						axisLabelVisible: true,
 						title: quantity,
+						axisLabelColor: lineColor.lineColor
 					})
 					priceLineArray.push(priceLine)
 					// chartSeriesInstanceRef.current?.attachPrimitive(new TrendLine(chartInstanceRef.current, chartSeriesInstanceRef.current, point, quantity, lineColor));
@@ -90,7 +90,9 @@ export async function Chart({ trades, orderBook }) {
 				},
 				width: Math.min(window.innerWidth - 10, 700),
 				height: Math.min(window.innerHeight/1.4, 700),
-				rightPriceScale: { autoScale: false },
+				rightPriceScale: { autoScale: false, ticksVisible: true },
+				handleScale: true,
+				handleScroll: true,
 				timeScale: {
 					secondsVisible: true,
 					timeVisible: true,
@@ -101,17 +103,14 @@ export async function Chart({ trades, orderBook }) {
 					}
 				},
 			});
-			chartInstanceRef.current.timeScale().fitContent()
 			chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
 
 			const newSeries = chartInstanceRef.current.addCandlestickSeries({ upColor: '#26a69a', downColor: '#ef5350', borderVisible: false, wickUpColor: '#26a69a', wickDownColor: '#ef5350' });
 			newSeries.setData(dataSorted);
 			chartSeriesInstanceRef.current = newSeries
 
-			currTime = dataSorted[dataSorted.length - 1].time
-
-			renderOrderBookData({ lineColor: "green" }, bids, dataSorted)
-			renderOrderBookData({ lineColor: "red" }, asks, dataSorted)
+			renderOrderBookData({ lineColor: "#26a69a33" }, bids, dataSorted)
+			renderOrderBookData({ lineColor: "#ef535033" }, asks, dataSorted)
 
 			window.addEventListener('resize', handleResize);
 
@@ -132,27 +131,38 @@ export async function Chart({ trades, orderBook }) {
 			clearPricelines()
 		})
 
-		renderOrderBookData({ lineColor: "green" }, bids, dataSorted)
-		renderOrderBookData({ lineColor: "red" }, asks, dataSorted)
+		renderOrderBookData({ lineColor: "#26a69a33" }, bids, dataSorted)
+		renderOrderBookData({ lineColor: "#ef535033" }, asks, dataSorted)
 
 		const handle = setInterval(() => {
 			startTransition(async () => {
-				const tradesResponse = await fetchTrades('')
-				const orderBookResponse = await fetchBinanceBook('')
+				const tradesResponse = await fetchTrades(symbol)
+				const orderBookResponse = await fetchBinanceBook(symbol)
 				const dataSorted = tradesResponse.sort((a, b) => a[0] > b[0]).map((value) => ({ time: Number(value[0]), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
 
-				if (dataSorted[dataSorted.length - 1].time === currTime) {
-					currTime += 1
-					dataSorted[dataSorted.length - 1].time = currTime
+				const currData = chartSeriesInstanceRef.current.data()
+				const prevValue = currData[currData.length - 1]
+
+				const value = dataSorted[dataSorted.length - 1]
+				
+				if (value.time === prevValue.time) {
+					return
 				}
-				chartInstanceRef.current.timeScale().fitContent()
+				console.log(prevValue)
+				if(value.open > prevValue.close) { 
+					value.low = prevValue.close
+				}
+				if(value.open < prevValue.close) { 
+					value.high = prevValue.close
+				}
 				chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
+				chartInstanceRef.current.applyOptions({timeScale:{barSpacing: 6}})
 				const bids = reduceOrderBook(orderBookResponse.bids)
 				const asks = reduceOrderBook(orderBookResponse.asks)
 				clearPricelines()
-				chartSeriesInstanceRef.current.update(dataSorted[dataSorted.length - 1]);
-				renderOrderBookData({ lineColor: "green" }, bids, dataSorted)
-				renderOrderBookData({ lineColor: "red" }, asks, dataSorted)
+				chartSeriesInstanceRef.current.update(value);
+				renderOrderBookData({ lineColor: "#26a69a33" }, bids, dataSorted)
+				renderOrderBookData({ lineColor: "#ef535033" }, asks, dataSorted)
 			});
 		}, 5000, precision, threshold);
 		return () => {
@@ -168,8 +178,8 @@ export async function Chart({ trades, orderBook }) {
 					<input title='Precision' type={"range"} min="3" max="7" value={precision} onChange={(e) => startTransition(() => setPrecision(e.target.value))} />
 				</div>
 				<div>
-					<p>Threshold:  {threshold}</p>
-					<input title='Threshold' type={"range"} min="0.5" max="5" step={.5} value={threshold} onChange={(e) => startTransition(() => setThreshold(e.target.value))} />
+					<p>Min {symbol}:  {threshold}</p>
+					<input title='Threshold' type={"range"} min="0.5" max="20" step={.5} value={threshold} onChange={(e) => startTransition(() => setThreshold(e.target.value))} />
 				</div>
 			</div>
 			<div
