@@ -1,5 +1,5 @@
 'use client'
-import styles from './card.module.css'
+import styles from './chart.module.css'
 
 import { startTransition, useEffect, useRef, useState } from 'react';
 import { createChart, ColorType, LineStyle } from 'lightweight-charts';
@@ -19,12 +19,11 @@ export async function Chart({ trades, orderBook }) {
 	const chartContainerRef = useRef();
 	const [threshold, setThreshold] = useState(5)
 	const [precision, setPrecision] = useState(5)
-	const [zoom, setZoom] = useState(7)
 	const dataSorted = trades.sort((a, b) => a[0] > b[0]).map((value) => ({ time: Number(value[0]), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
 	let currTime = null
 	const chartInstanceRef = useRef(null)
 	const chartSeriesInstanceRef = useRef(null)
-	const [priceLineArray, setPriceLineArray] = useState([])
+	const priceLineArray = []
 
 	const handleResize = () => {
 		chartInstanceRef.current?.applyOptions({ width: chartContainerRef.current.clientWidth });
@@ -102,6 +101,7 @@ export async function Chart({ trades, orderBook }) {
 					}
 				},
 			});
+			chartInstanceRef.current.timeScale().fitContent()
 			chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
 
 			const newSeries = chartInstanceRef.current.addCandlestickSeries({ upColor: '#26a69a', downColor: '#ef5350', borderVisible: false, wickUpColor: '#26a69a', wickDownColor: '#ef5350' });
@@ -137,19 +137,16 @@ export async function Chart({ trades, orderBook }) {
 
 		const handle = setInterval(() => {
 			startTransition(async () => {
-				// chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
 				const tradesResponse = await fetchTrades('')
 				const orderBookResponse = await fetchBinanceBook('')
 				const dataSorted = tradesResponse.sort((a, b) => a[0] > b[0]).map((value) => ({ time: Number(value[0]), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
 
-
 				if (dataSorted[dataSorted.length - 1].time === currTime) {
 					currTime += 1
 					dataSorted[dataSorted.length - 1].time = currTime
-				} else {
-
-					chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
 				}
+				chartInstanceRef.current.timeScale().fitContent()
+				chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
 				const bids = reduceOrderBook(orderBookResponse.bids)
 				const asks = reduceOrderBook(orderBookResponse.asks)
 				clearPricelines()
@@ -157,15 +154,15 @@ export async function Chart({ trades, orderBook }) {
 				renderOrderBookData({ lineColor: "green" }, bids, dataSorted)
 				renderOrderBookData({ lineColor: "red" }, asks, dataSorted)
 			});
-		}, 5000, precision, zoom, threshold);
+		}, 5000, precision, threshold);
 		return () => {
 			clearInterval(handle)
 		}
-	}, [zoom, precision, threshold])
+	}, [precision, threshold])
 
 	return (
 		<>
-			<div className={styles.centerNoPadding} style={{ display: 'flex', flexFlow: 'row', gap: 10 }}>
+			<div className={styles.chartActions} style={{ display: 'flex', flexFlow: 'row', gap: 10 }}>
 				<div>
 					<p>Precision: {precision}</p>
 					<input title='Precision' type={"range"} min="3" max="7" value={precision} onChange={(e) => startTransition(() => setPrecision(e.target.value))} />
@@ -177,7 +174,7 @@ export async function Chart({ trades, orderBook }) {
 			</div>
 			<div
 				ref={chartContainerRef}
-				className={styles.centerNoPadding}>
+				className={styles.chart}>
 			</div>
 		</>
 	);
