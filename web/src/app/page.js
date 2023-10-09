@@ -1,14 +1,14 @@
 import styles from './page.module.css'
 import {Symbol} from '@/app/components/symbol'
-import fetchInfo from '@/app/lib/fetch-info';
 import fetchData from './lib/fetch-data';
+import Chat from './components/chat';
 
 export default async function Home(props) {
   const defaultSymbol = props?.params?.id ?? "BTCUSDT"
   const data = await fetchData(defaultSymbol)
-  const info = await fetchInfo()
   return (
       <main className={styles.main}>
+      <Chat symbol={defaultSymbol} trades={[]} orderBook={[]}/>
         <a
           className={styles.description}
           href={'/'}
@@ -20,8 +20,7 @@ export default async function Home(props) {
         </a>
 
         <div className={styles.center}>
-            <Symbol currentSymbol={defaultSymbol} info={info} data={data} />
-            <div id="chart" />
+            <Symbol currentSymbol={defaultSymbol} data={data} />
         </div>
 
         <div className={styles.grid}>

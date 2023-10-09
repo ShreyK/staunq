@@ -5,6 +5,8 @@ import { startTransition, useEffect, useRef, useState } from 'react';
 import { createChart, ColorType, LineStyle } from 'lightweight-charts';
 import fetchTrades from '../lib/fetch-trades';
 import fetchBinanceBook from '../lib/fetch-orderbook';
+import Chat from './chat';
+import { reduceOrderBookForAI } from './chartActions';
 
 export async function Chart({ trades, orderBook, symbol }) {
 	const colors = {
@@ -22,6 +24,7 @@ export async function Chart({ trades, orderBook, symbol }) {
 	const dataSorted = trades.sort((a, b) => a[0] > b[0]).map((value) => ({ time: Number(value[0]), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
 	const chartInstanceRef = useRef(null)
 	const chartSeriesInstanceRef = useRef(null)
+	const intervalRef = useRef(null)
 	const [priceLineArray, _] = useState([])
 
 	const handleResize = () => {
@@ -89,7 +92,7 @@ export async function Chart({ trades, orderBook, symbol }) {
 					horzLines: { color: colors.lineColor }
 				},
 				width: Math.min(window.innerWidth - 10, 700),
-				height: Math.min(window.innerHeight/1.4, 700),
+				height: Math.min(window.innerHeight / 1.4, 700),
 				rightPriceScale: { autoScale: false, ticksVisible: true },
 				handleScale: true,
 				handleScroll: true,
@@ -134,7 +137,10 @@ export async function Chart({ trades, orderBook, symbol }) {
 		renderOrderBookData({ lineColor: "#26a69a33" }, bids, dataSorted)
 		renderOrderBookData({ lineColor: "#ef535033" }, asks, dataSorted)
 
-		const handle = setInterval(() => {
+		if (intervalRef.current) {
+			clearInterval(intervalRef.current)
+		}
+		intervalRef.current = setInterval(() => {
 			startTransition(async () => {
 				const tradesResponse = await fetchTrades(symbol)
 				const orderBookResponse = await fetchBinanceBook(symbol)
@@ -144,19 +150,19 @@ export async function Chart({ trades, orderBook, symbol }) {
 				const prevValue = currData[currData.length - 1]
 
 				const value = dataSorted[dataSorted.length - 1]
-				
+
 				if (value.time === prevValue.time) {
 					return
 				}
 				console.log(prevValue)
-				if(value.open > prevValue.close) { 
+				if (value.open > prevValue.close) {
 					value.low = prevValue.close
 				}
-				if(value.open < prevValue.close) { 
+				if (value.open < prevValue.close) {
 					value.high = prevValue.close
 				}
 				chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
-				chartInstanceRef.current.applyOptions({timeScale:{barSpacing: 6}})
+				chartInstanceRef.current.applyOptions({ timeScale: { barSpacing: 6 } })
 				const bids = reduceOrderBook(orderBookResponse.bids)
 				const asks = reduceOrderBook(orderBookResponse.asks)
 				clearPricelines()
@@ -164,9 +170,11 @@ export async function Chart({ trades, orderBook, symbol }) {
 				renderOrderBookData({ lineColor: "#26a69a33" }, bids, dataSorted)
 				renderOrderBookData({ lineColor: "#ef535033" }, asks, dataSorted)
 			});
-		}, 5000, precision, threshold);
+		}, 15000, precision, threshold);
 		return () => {
-			clearInterval(handle)
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current)
+			}
 		}
 	}, [precision, threshold])
 
@@ -186,6 +194,7 @@ export async function Chart({ trades, orderBook, symbol }) {
 				ref={chartContainerRef}
 				className={styles.chart}>
 			</div>
+			<Chat symbol={symbol} trades={dataSorted} bids={reduceOrderBookForAI(orderBook.bids)} asks={reduceOrderBookForAI(orderBook.asks)} />
 		</>
 	);
 };
