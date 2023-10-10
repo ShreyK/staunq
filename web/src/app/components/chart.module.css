@@ -14,3 +14,23 @@
   position: relative;
   padding: 4rem 0;
 }
+
+@media (max-width: 1120px) {
+  .chartActions {
+    padding: 2rem 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .chart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 0;
+    width: 100vw;
+    height: 50vh;
+  }
+  .chartActions {
+    padding: 1rem 0;
+  }
+}

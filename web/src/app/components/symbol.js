@@ -9229,7 +9229,8 @@ export async function Symbol({ data, currentSymbol }) {
                 <Select theme={{ ...defaultTheme, colors: { primary: 'black', neutral0: 'black' } }} options={options} defaultValue={{ value: currentSymbol, label: currentSymbol }} name={"symbols"} id={"symbolSelect"} onChange={(e) => {
                     window.location.replace(`${window.location.origin}/view/${e.value}`)
                 }} />
-                Price: {data && Number(data[0].price).toPrecision(7)}
+            <button className={styles.button} onClick={(e) => {return window.location.replace(`${window.location.origin}/view/${currentSymbol}`)}}>Go</button>
+
             </div>
         </Suspense>
     )

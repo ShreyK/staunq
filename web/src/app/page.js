@@ -1,14 +1,12 @@
 import styles from './page.module.css'
 import {Symbol} from '@/app/components/symbol'
 import fetchData from './lib/fetch-data';
-import Chat from './components/chat';
 
 export default async function Home(props) {
   const defaultSymbol = props?.params?.id ?? "BTCUSDT"
   const data = await fetchData(defaultSymbol)
   return (
       <main className={styles.main}>
-      <Chat symbol={defaultSymbol} trades={[]} orderBook={[]}/>
         <a
           className={styles.description}
           href={'/'}

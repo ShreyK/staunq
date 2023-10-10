@@ -1,6 +1,6 @@
 
 const reduceOrderBookForAI = (array) => {
-    return array.map((value) => [Number(value[0]).toPrecision(5), Number(value[1])])
+    return array.map((value) => [Number(value[0]).toPrecision(4), Number(value[1])])
         .reduce((arr, curr) => {
             const price = curr[0]
             const quantity = curr[1]
@@ -11,7 +11,7 @@ const reduceOrderBookForAI = (array) => {
                 arr.push([price, quantity])
             }
             return arr
-        }, []).filter((value) => value[1]* value[0]  > 150000)
+        }, [])
 }
 
 const reduceTrades = (trades) => {

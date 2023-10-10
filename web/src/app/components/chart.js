@@ -91,8 +91,8 @@ export async function Chart({ trades, orderBook, symbol }) {
 					vertLines: { color: colors.lineColor },
 					horzLines: { color: colors.lineColor }
 				},
-				width: Math.min(window.innerWidth - 10, 700),
-				height: Math.min(window.innerHeight / 1.4, 700),
+				width: window.innerWidth < 768 ? window.innerWidth : window.innerWidth*2/3,
+				height: window.innerWidth < 768 ? window.innerHeight / 2 : window.innerHeight / 1.4,
 				rightPriceScale: { autoScale: false, ticksVisible: true },
 				handleScale: true,
 				handleScroll: true,
