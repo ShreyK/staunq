@@ -5,7 +5,8 @@ import { useChat } from 'ai/react';
 
 export default function Chat(props) {
     const { messages, input, handleInputChange, handleSubmit } = useChat({
-        body: {
+        body:
+        {
             ...props
         }
     });
@@ -18,7 +19,6 @@ export default function Chat(props) {
                     {m.content}
                 </div>
             ))}
-
             <form onSubmit={handleSubmit} className={styles.form}>
                 <input
                     className={styles.input}

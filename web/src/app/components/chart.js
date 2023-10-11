@@ -154,7 +154,6 @@ export async function Chart({ trades, orderBook, symbol }) {
 				if (value.time === prevValue.time) {
 					return
 				}
-				console.log(prevValue)
 				if (value.open > prevValue.close) {
 					value.low = prevValue.close
 				}
