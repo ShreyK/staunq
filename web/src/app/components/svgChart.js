@@ -14,7 +14,7 @@ import { useCallback } from 'react'
 export async function SvgChart({ trades, orderBook, symbol }) {
     const dataSorted = trades.sort((a, b) => a[0] > b[0]).map((value) => ({ x: new Date(Number(value[0])), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
     // new Date().setHours(_.last(dataSorted).x.getHours() + 1)
-    const currentDomain = { x: [dataSorted[0].x, dataSorted[dataSorted.length-1].x], y: [_.minBy(dataSorted, d => d.low).low, _.maxBy(dataSorted, d => d.high).high] }
+    const currentDomain = { x: [dataSorted[0].x, dataSorted[dataSorted.length - 1].x], y: [_.minBy(dataSorted, d => d.low).low, _.maxBy(dataSorted, d => d.high).high] }
     const [zoomedXDomain, setZoomedXDomain] = useState(currentDomain);
     const [data, setData] = useState(dataSorted)
 
@@ -26,20 +26,21 @@ export async function SvgChart({ trades, orderBook, symbol }) {
 
 
     useEffect(() => {
+        // window.addEventListener("resize", onResize)
         const handle = setInterval(async () => {
             const tradesResponse = await fetchTrades(symbol, "1s")
             // const orderBookResponse = await fetchBinanceBook(symbol)
             const dataSorted = tradesResponse.sort((a, b) => a[0] > b[0]).map((value) => ({ x: new Date(Number(value[0])), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
-            console.log(dataSorted[dataSorted.length - 1].x, data[data.length-1].x)
-            if(dataSorted[dataSorted.length - 1].x <= data[data.length-1].x) {
+            console.log(dataSorted[dataSorted.length - 1].x, data[data.length - 1].x)
+            if (dataSorted[dataSorted.length - 1].x <= data[data.length - 1].x) {
                 return
             }
             let dataFiltered = dataSorted.reduce((arr, curr) => {
                 const time = new Date(curr.x)
-                const getTimeIndex = (time) => {return time.getDate() + time.getHours() + time.getMinutes()}
+                const getTimeIndex = (time) => { return time.getDate() + time.getHours() + time.getMinutes() }
                 let itemIndex = arr.findIndex(item => getTimeIndex(new Date(item[0])) === getTimeIndex(time));
                 if (itemIndex !== -1) {
-                    arr[itemIndex] = {...curr}
+                    arr[itemIndex] = { ...curr }
                     // if(curr.low < currData.low) {
                     //     arr[itemIndex].low = curr.low
                     // }
@@ -50,19 +51,18 @@ export async function SvgChart({ trades, orderBook, symbol }) {
                     //     arr[itemIndex].close = curr.close
                     // }
                 } else {
-                    arr.push({...curr})
+                    arr.push({ ...curr })
                 }
-    
+
                 return arr
             }, [])
             const currData = data
             let newData = dataFiltered.filter(e => {
                 return !currData.some(item => item.x === e.x);
-             });
-             console.log(newData)
+            });
             const prevValue = currData[currData.length - 1]
-            
-            if(newData.length === 0) {
+
+            if (newData.length === 0) {
                 return
             }
             const value = newData[newData.length - 1]
@@ -86,17 +86,21 @@ export async function SvgChart({ trades, orderBook, symbol }) {
 
         return () => {
             clearInterval(handle)
+            // window.removeEventListener("resize", onResize)
         }
     }, [data])
 
     return (
         <Suspense fallback={<div className={styles.cardBackground}>Loading...</div>}>
-            <div className={styles.cardBackground}>
+            <div>
                 <div>Price: {data[data.length - 1].close}</div>
-                <VictoryChart theme={VictoryTheme.material} width={700} height={300}
-                    scale={{ x: "time" }} containerComponent={<VictoryZoomContainer onZoomDomainChange={onDomainChange} />}>
-
-                    <VictoryAxis style={{ grid: { display: 'none' } }} tickFormat={(t) => `${t.getHours()}:${t.getMinutes() === 0 || t.getMinutes().length === 1 ? t.getMinutes() + "0" : t.getMinutes()}`} tickCount={14} />
+                <VictoryChart theme={VictoryTheme.material} width={1280} height={720}
+                    scale={{ x: "time" }} containerComponent={<VictoryZoomContainer onZoomDomainChange={onDomainChange} zoomDomain={"x"} />}>
+                    <VictoryAxis
+                        style={{ grid: { display: 'none' } }}
+                    // tickFormat={(t) => `${t.getHours()}:${t.getMinutes() === 0 || t.getMinutes().length === 1 ? t.getMinutes() + "0" : t.getMinutes()}`}
+                    // tickCount={14}
+                    />
                     <VictoryAxis style={{ grid: { display: 'none' } }} dependentAxis />
                     <VictoryCandlestick
                         candleColors={{ positive: "#5f5c5b", negative: "#c43a31" }}
@@ -107,14 +111,16 @@ export async function SvgChart({ trades, orderBook, symbol }) {
                     //     onLoad: { duration: 1000 }
                     //   }}
                     />
-                    <VictoryLine data={[{x:data[0].x, y:data[data.length - 1].close}, {x:data[data.length-1].x, y:data[data.length - 1].close}]}
-                    animate={{
-                        duration: 1000,
-                        onLoad: { duration: 1000 }
-                      }}/>
+                    <VictoryLine
+                        style={{
+                            data: { stroke: "#c43a31" },
+                            parent: { border: "1px solid #ccc" }
+                        }}
+                        data={[{ x: data[0].x, y: data[data.length - 1].close }, { x: data[data.length - 1].x, y: data[data.length - 1].close }]}
+                    />
                 </VictoryChart>
 
             </div>
-        </Suspense>
+        </Suspense >
     )
 }

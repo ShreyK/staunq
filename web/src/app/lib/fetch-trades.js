@@ -1,9 +1,13 @@
 'use server'
 import { cache } from 'react'
 
-const fetchTrades = cache(async (defaultSymbol, interval) => {
+const fetchTrades = cache(async (defaultSymbol, interval, startTime, endTime) => {
+    let url = `https://data-api.binance.vision/api/v3/klines?symbol=${defaultSymbol}&interval=${interval}`;
+    if (startTime || endTime) {
+        url = `https://data-api.binance.vision/api/v3/klines?symbol=${defaultSymbol}&interval=${interval}&startTime=${startTime}&endTime=${endTime}`
+    }
     const res = await fetch(
-        `https://data-api.binance.vision/api/v3/klines?symbol=${defaultSymbol}&interval=${interval}`,
+        url,
         {
             next: {
                 revalidate: 1000
