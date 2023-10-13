@@ -11,15 +11,16 @@ export const dynamicParams = true;
 
 export default async function ViewPage(props) {
     const defaultSymbol = props?.params?.id ?? "BTCUSDT"
+    const defaultInterval = intervals["5m"]
     const data = await fetchData(defaultSymbol)
-    const trades = await fetchTrades(defaultSymbol, intervals["1m"])
+    const trades = await fetchTrades(defaultSymbol, defaultInterval)
     const orderBook = await fetchBinanceBook(defaultSymbol)
 
     return (
         <>
             <Symbol data={data} currentSymbol={defaultSymbol} />
             {/* <SvgChart symbol={defaultSymbol} trades={trades} orderBook={orderBook} interval={intervals['1m']} /> */}
-            <Chart symbol={defaultSymbol} trades={trades} orderBook={orderBook} />
+            <Chart symbol={defaultSymbol} trades={trades} orderBook={orderBook} defaultInterval={defaultInterval} />
         </>
     )
 }

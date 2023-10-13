@@ -9297,3 +9297,43 @@ export const intervalsOptions = [
         "label": "1M"
     }
 ]
+
+export const getVisibleRangeBasedOnInterval = (interval) => {
+    const currDate = new Date(Date.now())
+    switch (interval) {
+        case "1s":
+            return { from: currDate.setHours(currDate.getHours() - 1), to: currDate.getTime() }
+        case "1m":
+            return { from: currDate.setHours(currDate.getHours() - 2), to: currDate.getTime() }
+        case "3m":
+            return { from: currDate.setHours(currDate.getHours() - 4), to: currDate.getTime() }
+        case "5m":
+            return { from: currDate.setHours(currDate.getHours() - 8), to: currDate.getTime() }
+        case "15m":
+            return { from: currDate.setHours(currDate.getHours() - 16), to: currDate.getTime() }
+        case "30m":
+            return { from: currDate.setHours(currDate.getHours() - 32), to: currDate.getTime() }
+        case "1h":
+            return { from: currDate.setHours(currDate.getHours() - 64), to: currDate.getTime() }
+        case "2h":
+            return { from: currDate.setHours(currDate.getHours() - 128), to: currDate.getTime() }
+        case "4h":
+            return { from: currDate.setDate(currDate.getDate() - 3), to: currDate.getTime() }
+        case "6h":
+            return { from: currDate.setDate(currDate.getDate() - 5), to: currDate.getTime() }
+        case "8h":
+            return { from: currDate.setDate(currDate.getDate() - 7), to: currDate.getTime() }
+        case "12h":
+            return { from: currDate.setDate(currDate.getDate() - 14), to: currDate.getTime() }
+        case "1d":
+            return { from: currDate.setMonth(currDate.getMonth() - 1), to: currDate.getTime() }
+        case "3d":
+            return { from: currDate.setMonth(currDate.getMonth() - 2), to: currDate.getTime() }
+        case "1w":
+            return { from: currDate.setYear(currDate.getYear() - 1), to: currDate.getTime() }
+        case "1M":
+            return { from: currDate.setYear(currDate.getYear() - 5), to: currDate.getTime() }
+        default:
+            return currRange
+    }
+}

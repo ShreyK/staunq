@@ -10,6 +10,7 @@ const reduceOrderBookForAI = (array) => {
             } else {
                 arr.push([price, quantity])
             }
+
             return arr
         }, [])
 }
@@ -18,4 +19,4 @@ const reduceTrades = (trades) => {
     trades.sort((a, b) => a[0] > b[0]).map((value) => ({ time: Number(value[0]), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
 }
 
-export {reduceOrderBookForAI, reduceTrades}
+export { reduceOrderBookForAI, reduceTrades }

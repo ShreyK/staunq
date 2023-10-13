@@ -14,7 +14,6 @@ export async function Interval({ currInterval, setCurrInterval }) {
             <Select theme={{ ...defaultTheme, colors: { primary: 'black', neutral0: 'black' } }} options={options} defaultValue={{ value: currInterval, label: currInterval }} name={"symbols"} id={"symbolSelect"} onChange={(e) => {
                 setCurrInterval(e.value)
             }} />
-            <button className={styles.button} onClick={(e) => { setCurrInterval(currInterval) }}>Go</button>
         </Suspense>
     )
 }
