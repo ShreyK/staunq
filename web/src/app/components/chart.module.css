@@ -1,36 +1,38 @@
 
 .chart {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
   padding: 1rem 0;
 }
+.chart div{
+  z-index: 0;
+}
+
 
 .chartActions {
   display: flex;
-  justify-content: center;
+  flex-flow: 'row';
+  z-index:100;
+  padding: 1rem;
   align-items: center;
-  position: relative;
-  padding: 4rem 0;
+  gap: 10px;
+}
+
+.chartActions label {
+  margin: 0px 20px;
 }
 
 @media (max-width: 1120px) {
   .chartActions {
-    padding: 2rem 0;
+    padding: 0.5rem;
   }
 }
 
 @media (max-width: 700px) {
-  .chart {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem 0;
-    width: 100vw;
-    height: 50vh;
-  }
   .chartActions {
-    padding: 1rem 0;
+    gap: 0;
+    padding: 0.2rem;
+  }
+  .chartActions label {
+    margin: 0px;
   }
 }

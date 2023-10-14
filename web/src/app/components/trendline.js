@@ -11,13 +11,13 @@ class TrendLinePaneRenderer {
         target.useBitmapCoordinateSpace(scope => {
             if (
                 this._p1.x === null ||
-                this._p1.y === null 
+                this._p1.y === null
             )
                 return
             const ctx = scope.context
             const x1Scaled = Math.round(this._p1.x * scope.horizontalPixelRatio)
             const y1Scaled = Math.round(this._p1.y * scope.verticalPixelRatio)
-            const x2Scaled = Math.round((this._p1.x+10) * scope.horizontalPixelRatio)
+            const x2Scaled = Math.round((this._p1.x + 10) * scope.horizontalPixelRatio)
             const y2Scaled = Math.round(this._p1.y * scope.verticalPixelRatio)
             ctx.lineWidth = this._options.width
             ctx.strokeStyle = this._options.lineColor
@@ -47,7 +47,7 @@ class TrendLinePaneRenderer {
         scope.context.fill()
         scope.context.beginPath()
         scope.context.fillStyle = this._options.labelTextColor
-        scope.context.fillText(text, x + offset * 2 + 50 , y)
+        scope.context.fillText(text, x + offset * 2 + 50, y)
     }
 }
 

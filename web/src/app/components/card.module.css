@@ -15,9 +15,3 @@
   border:none;
   align-items: center;
 }
-
-@media (max-width: 700px) {
-  .cardBackground {
-    width: 60vw;
-  }
-}

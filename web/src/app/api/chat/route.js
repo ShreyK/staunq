@@ -1,11 +1,11 @@
 import { StreamingTextResponse } from 'ai';
- 
+
 import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { BytesOutputParser } from 'langchain/schema/output_parser';
 import { PromptTemplate } from 'langchain/prompts';
- 
+
 export const runtime = 'edge';
- 
+
 /**
  * Basic memory formatter that stringifies and passes
  * message history directly into the model.
@@ -14,14 +14,8 @@ const formatMessage = (message) => {
   return `${message.role}: ${message.content}`;
 };
 
-const OPENAI_API_KEY=process.env.OPENAI_API_KEY
- 
-// Current Trades
-// ${trades}
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY
 
-// Current OrderBook
-// ${orderBook}
- 
 /*
  * This handler initializes and calls a simple chain with a prompt,
  * chat model, and output parser. See the docs for more information:
@@ -36,7 +30,7 @@ export async function POST(req) {
   const bids = body.bids
   const asks = body.asks
 
-const TEMPLATE = `You are a finance educator.
+  const TEMPLATE = `You are a finance educator.
 You know everything about daytrading, traditional finance, and decentralized finance, all of the different indicators within technical analysis and advanced techniques such as wycoff strategies, accumulation and distribution, supply and demand. 
 
 You have the following data given to you for every request based on the current asset the user is viewing.
@@ -112,7 +106,7 @@ User: {input}
 AI:`;
   const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage);
   const currentMessageContent = messages[messages.length - 1].content;
- 
+
   const prompt = PromptTemplate.fromTemplate(TEMPLATE);
   /**
    * See a full list of supported models at:
@@ -123,13 +117,13 @@ AI:`;
     openAIApiKey: OPENAI_API_KEY,
     temperature: 0.8,
   });
- 
+
   /**
    * Chat models stream message chunks rather than bytes, so this
    * output parser handles serialization and encoding.
    */
   const outputParser = new BytesOutputParser();
- 
+
   /*
    * Can also initialize as:
    *
@@ -137,11 +131,11 @@ AI:`;
    * const chain = RunnableSequence.from([prompt, model, outputParser]);
    */
   const chain = prompt.pipe(model).pipe(outputParser);
- 
+
   const stream = await chain.stream({
     chat_history: formattedPreviousMessages.join('\n'),
     input: currentMessageContent,
   });
- 
+
   return new StreamingTextResponse(stream);
 }
