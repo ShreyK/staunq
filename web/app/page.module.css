@@ -3,8 +3,16 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  padding: 6rem;
-  min-height: 100vh;
+  padding: 1rem;
+  max-height: 80vh;
+}
+
+.navBar {
+  display: flex;
+  flex-flow: row;
+  width: 100vw;
+  height: 10vh;
+  justify-content: space-between;
 }
 
 .description {
@@ -76,10 +84,6 @@
 
 .center {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  padding: 4rem 0;
 }
 
 .description::before {
@@ -149,7 +153,6 @@
   }
 
   .center {
-    padding: 8rem 0 6rem;
   }
 
   .center::before {

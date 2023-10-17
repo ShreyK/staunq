@@ -1,0 +1,38 @@
+
+.chart {
+  display: flex;
+  padding: 1rem 0;
+}
+.chart div{
+  z-index: 0;
+}
+
+
+.chartActions {
+  display: flex;
+  flex-flow: 'row';
+  z-index:100;
+  padding: 0 1rem;
+  align-items: center;
+  gap: 10px;
+}
+
+.chartActions label {
+  margin: 0px 20px;
+}
+
+@media (max-width: 1120px) {
+  .chartActions {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .chartActions {
+    gap: 0;
+    padding: 0.2rem;
+  }
+  .chartActions label {
+    margin: 0px;
+  }
+}

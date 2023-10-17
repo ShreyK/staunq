@@ -1,0 +1,61 @@
+.chat {
+  display: flex;
+  flex-flow: column;
+  justify-content: flex-end;
+  align-items: flex-end;
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 1rem;
+  width: 20vw;
+  height: 100vh;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.message {
+  display: flex;
+  border: 1px gray;
+  border-radius: 1rem;
+  padding: .5rem 1rem;
+  background-color: gray;
+}
+
+.ai {
+  align-items: flex-start;
+}
+
+.user {
+  align-items: flex-end;
+}
+
+.form {
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+}
+
+.input {
+  border: none;
+  padding: .5rem 1rem;
+  width: 100%;
+}
+
+.button {
+  border: none;
+  padding: .5rem 1rem;
+  cursor: pointer;
+}
+
+@media (max-width: 700px) {
+  .chat {
+    display: flex;
+    flex-flow: column;
+    top: 60%;
+    left: 0;
+    padding: 1rem;
+    width: 100vw;
+    height: 40vh;
+    gap: 1rem;
+  }
+}

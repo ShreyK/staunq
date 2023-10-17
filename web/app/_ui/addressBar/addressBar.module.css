@@ -1,0 +1,47 @@
+.paramsContainer {
+  display: flex;
+  align-items: center;
+  gap:1rem;
+  color: white;
+  /* "px-2 text-gray-500" */
+}
+
+.paramKey {
+  padding: 1rem;
+/* "animate-[highlight_1s_ease-in-out_1] text-gray-100" */
+}
+
+.paramValue {
+  padding: 1rem;
+/* "animate-[highlight_1s_ease-in-out_1] text-gray-100" */
+}
+
+.addressBarContainer {
+  display: flex;
+  align-items: center;
+  gap:1rem;
+  padding: 1rem;
+  /* "flex items-center gap-x-2 p-3.5 lg:px-5 lg:py-3" */
+}
+
+.addressBarTextContainer{
+  display: flex;
+  gap: 1rem;
+  /* "flex gap-x-1 text-sm font-medium" */
+}
+
+.addressBarSite {
+  /* "px-2 text-gray-400" */
+  padding: 1rem;
+}
+
+
+.addressBarPath {
+  padding: 1rem;
+
+  /* "animate-[highlight_1s_ease-in-out_1] rounded-full px-1.5 py-0.5 text-gray-100" */
+}
+
+.addressBarPathDivider, .addressBarPathContainer, .addressBarIcon {
+  /* "text-gray-600" */
+}
