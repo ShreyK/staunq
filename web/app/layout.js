@@ -9,11 +9,11 @@ export const metadata = {
   description: 'Collaborating Crypto Trading - BTC ETH USDT',
 }
 
-export default function RootLayout({ props, children, chart, chat }) {
+export default function RootLayout({ params, children, chart, chat }) {
   return (
     <html lang="en">
       <body>
-        <AppContextProvider props={props}>
+        <AppContextProvider params={params}>
           <AddressBar />
           {children}
           {chart}

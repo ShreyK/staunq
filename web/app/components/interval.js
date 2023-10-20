@@ -1,14 +1,19 @@
-import Select, { defaultTheme } from 'react-select'
 import { intervalsOptions } from './symbolUtils'
-
 import styles from './interval.module.css'
+import { intervals } from '@/app/_utils/symbolUtils'
 export async function Interval({ currInterval, setCurrInterval }) {
 
     let options = intervalsOptions
 
     return (
-        <Select className={styles.minWidth} theme={{ ...defaultTheme, colors: { primary: 'black', primary75: 'gray', primary: 'lightgray', neutral0: 'black', neutra90: 'white' } }} options={options} defaultValue={{ value: currInterval, label: currInterval }} name={"symbols"} id={"symbolSelect"} onChange={(e) => {
-            setCurrInterval(e.value)
-        }} />
+        <label>Interval <br />
+            <select id="interval" className={styles.minWidth} defaultValue={currInterval} onChange={(event) => {
+                setCurrInterval(intervals[event.target.value])
+            }}>
+                {options.map((value) => {
+                    return <option key={value.value} value={value.value}>{value.label}</option>
+                })}
+            </select>
+        </label>
     )
 }

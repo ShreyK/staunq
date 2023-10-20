@@ -31,7 +31,6 @@ export async function SvgChart({ trades, orderBook, symbol }) {
             const tradesResponse = await fetchTrades(symbol, "1s")
             // const orderBookResponse = await fetchBinanceBook(symbol)
             const dataSorted = tradesResponse.sort((a, b) => a[0] > b[0]).map((value) => ({ x: new Date(Number(value[0])), open: Number(value[1]), high: Number(value[2]), low: Number(value[3]), close: Number(value[4]) }))
-            console.log(dataSorted[dataSorted.length - 1].x, data[data.length - 1].x)
             if (dataSorted[dataSorted.length - 1].x <= data[data.length - 1].x) {
                 return
             }

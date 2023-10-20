@@ -9,7 +9,7 @@ import fetchBinanceBook from '@/app/lib/fetch-orderbook';
 import { reduceOrderBook, reduceOrderBookForAI, reduceTrades, renderOrderBookData, reloadData, clearPricelines } from './chartActions';
 import { intervals } from '@/app/_utils/symbolUtils';
 // import { Interval } from './interval';
-import { debounce } from 'lodash';
+import { debounce, maxBy } from 'lodash';
 import { useAppContext } from '../context/appContext';
 import { Interval } from '@/app/components/interval';
 
@@ -22,10 +22,10 @@ export async function Chart() {
     textColor: 'white',
     areaTopColor: '#2962FF',
     upColor: {
-      lineColor: '#26a69a33'
+      lineColor: '#26a69a55'
     },
     downColor: {
-      lineColor: '#ef535033'
+      lineColor: '#ef535055'
     },
     areaBottomColor: 'rgba(41, 98, 255, 0.28)',
   }
@@ -35,13 +35,17 @@ export async function Chart() {
     return <></>
   }
 
-  const [threshold, setThreshold] = useState(10)
   const [precision, setPrecision] = useState(7)
   const [priceLineArray, _] = useState([])
   const dataSorted = reduceTrades(trades)
   const bids = reduceOrderBook(orderBook.bids, precision)
   const asks = reduceOrderBook(orderBook.asks, precision)
 
+  const maxBid = maxBy(bids, (value) => {
+    return value[1]
+  })
+  const maxBidQuantity = maxBid[1].toPrecision(1)
+  const [threshold, setThreshold] = useState(maxBidQuantity / 2)
   const chartInstanceRef = useRef(null)
   const chartSeriesInstanceRef = useRef(null)
   const intervalRef = useRef(null)
@@ -129,12 +133,19 @@ export async function Chart() {
       const range = chartInstanceRef.current.timeScale().getVisibleRange()
       let from = range.from
       const now = Date.now()
-      if (value !== intervals['1m'] && value !== intervals['1s']) {
-        const date = new Date(now)
-        from = date.setMonth(date.getMonth() - 1)
-        if (value === intervals['1M']) {
-          from = date.setYear(date.getYear() - 1)
-        }
+      const date = new Date(now)
+      if (value.includes('s')) {
+        from = date.setMinutes(Math.max(0, date.getMinutes() - 10))
+      } else if (value.includes('m')) {
+        from = date.setHours(Math.max(0, date.getHours() - 2))
+      } else if (value.includes('h')) {
+        from = date.setDate(Math.max(1, date.getDate() - 5))
+      } else if (value.includes('d')) {
+        from = date.setMonth(Math.max(1, date.getMonth() - 1))
+      } else if (value.includes('w')) {
+        from = date.setMonth(Math.max(1, date.getMonth() - 2))
+      } else if (value.includes('M')) {
+        from = date.setMonth(Math.max(1, date.getMonth() - 5))
       }
       chartInstanceRef.current.timeScale().setVisibleRange({ from: from, to: now })
       chartSeriesInstanceRef.current.setData([])
@@ -148,7 +159,6 @@ export async function Chart() {
     if (newVisibleLogicalRange !== null && !!chartInstanceRef.current) {
       const dataSorted = chartSeriesInstanceRef.current.data()
       let barsInfo = chartSeriesInstanceRef.current.barsInLogicalRange(newVisibleLogicalRange);
-      console.log(newVisibleLogicalRange)
       if (barsInfo !== null && barsInfo.barsBefore < 0) {
         const firstTime = dataSorted[0].time
         const step = dataSorted[1].time - dataSorted[0].time
@@ -174,11 +184,14 @@ export async function Chart() {
       },
       width: window.innerWidth < 700 ? window.innerWidth : window.innerWidth * 3 / 4,
       height: window.innerWidth < 700 ? window.innerHeight / 2 : window.innerHeight / 1.2,
-      leftPriceScale: { autoScale: false, ticksVisible: true, visible: true },
+      leftPriceScale: { autoScale: false, ticksVisible: true, visible: true, borderVisible: false },
       rightPriceScale: { autoScale: false, ticksVisible: true, visible: false },
       handleScale: true,
       handleScroll: true,
       localization: {
+        priceFormatter: (price) => {
+          return price.toPrecision(precision)
+        },
         timeFormatter: (time) => {
           const date = new Date(time)
           const min = ('0' + date.getMinutes()).slice(-2)
@@ -281,6 +294,13 @@ export async function Chart() {
         if (!chartSeriesInstanceRef.current) {
           return;
         }
+        chartSeriesInstanceRef.current.applyOptions({
+          localization: {
+            priceFormatter: (price) => {
+              return price.toPrecision(precision)
+            }
+          }
+        })
         const orderBookResponse = await refetchOrderBook()
         const bids = reduceOrderBook(orderBookResponse.bids, precision)
         const asks = reduceOrderBook(orderBookResponse.asks, precision)
@@ -300,13 +320,13 @@ export async function Chart() {
   return (
     <>
       <div className={styles.chartActions}>
-        <label>Precision: {precision}
+        <label>Precision: {precision} <br />
           <input title='Precision' type={"range"} min="3" max="7" value={precision} onChange={(e) => startTransition(() => setPrecision(e.target.value))} />
         </label>
-        <label>Min {symbol}:  {threshold}
-          <input title='Threshold' type={"range"} min="0.5" max="20" step={.5} value={threshold} onChange={(e) => startTransition(() => setThreshold(e.target.value))} />
+        <label>Threshold: {threshold} <br />
+          <input title='Threshold' type={"range"} min="0" max={maxBidQuantity} step={maxBidQuantity / 100} value={threshold} onChange={(e) => startTransition(() => setThreshold(e.target.value))} />
         </label>
-        <Interval interval={interval} setCurrInterval={onIntervalUpdated} />
+        <Interval currInterval={interval} setCurrInterval={onIntervalUpdated} />
       </div>
       <div
         ref={chartContainerRef}

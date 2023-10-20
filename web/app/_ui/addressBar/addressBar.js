@@ -1,8 +1,10 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useSearchParams } from 'next/navigation';
 import styles from './addressBar.module.css'
+import { symbols } from '@/app/_utils/symbolUtils';
+import Link from 'next/link';
 
 function Params() {
   const searchParams = useSearchParams();
@@ -38,8 +40,8 @@ function Params() {
 
 export function AddressBar() {
   const pathname = usePathname();
-  console.log(pathname)
-
+  const params = useParams()
+  const symbol = params?.id ?? "BTCUSDT"
   return (
     <div className={styles.addressBarContainer}>
       <div className={styles.addressBarIcon}>
@@ -58,12 +60,20 @@ export function AddressBar() {
       </div>
       <div className={styles.addressBarTextContainer}>
         <div>
-          <span className={styles.addressBarSite}>staunq.com</span>
+          <Link href={"/"}><span className={styles.addressBarSite}>staunq.com</span></Link>
         </div>
         {pathname !== "/" ? (
           <>
             <span className={styles.addressBarPathContainer}>/</span>
-            {pathname
+            {symbol ?
+              <select id="addressBarSymbol" className={styles.symbolSelect} defaultValue={symbol} onChange={(event) => {
+                window.location.replace(`${window.location.origin}/view/${event.target.value}`)
+              }}>
+                {symbols.map((value) => {
+                  return <option key={value.value} value={value.value}>{value.label}</option>
+                })}
+              </select> : <></>}
+            {/* {pathname
               .split('/')
               .slice(2)
               .map((segment) => {
@@ -81,7 +91,7 @@ export function AddressBar() {
                     <span className={styles.addressBarPathDivider}>/</span>
                   </React.Fragment>
                 );
-              })}
+              })} */}
           </>
         ) : null}
 

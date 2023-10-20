@@ -8,15 +8,13 @@ import React, { useEffect } from 'react';
 
 const AppContext = React.createContext(undefined);
 
-export function AppContextProvider({ props, children }) {
-  const symbol = props?.params?.id ?? "BTCUSDT"
+export function AppContextProvider({ params, children }) {
+  const parsedSymbol = params && params.toString().includes("/view/") ? params.split("/").pop() : "BTCUSDT"
+  const [symbol, setSymbol] = React.useState(parsedSymbol);
   const [interval, setInterval] = React.useState(intervals["5m"]);
   const [data, setData] = React.useState(null)
   const [trades, setTrades] = React.useState(null)
   const [orderBook, setOrderBook] = React.useState(null)
-  // const data = await fetchData(symbol)
-  // const trades = await fetchTrades(symbol, defaultInterval)
-  // const orderBook = await fetchBinanceBook(symbol)
 
   const updateInterval = (interval) => {
     React.startTransition(() => {
@@ -63,7 +61,8 @@ export function AppContextProvider({ props, children }) {
     refetchTrades,
     orderBook,
     refetchOrderBook,
-    symbol
+    symbol,
+    setSymbol
   }
   return (
     <AppContext.Provider value={appContext}>

@@ -120,7 +120,6 @@ export async function Chart({ trades, orderBook, symbol, defaultInterval }) {
     if (newVisibleLogicalRange !== null && !!chartInstanceRef.current) {
       const dataSorted = chartSeriesInstanceRef.current.data()
       let barsInfo = chartSeriesInstanceRef.current.barsInLogicalRange(newVisibleLogicalRange);
-      console.log(newVisibleLogicalRange)
       if (barsInfo !== null && barsInfo.barsBefore < 0) {
         const firstTime = dataSorted[0].time
         const step = dataSorted[1].time - dataSorted[0].time

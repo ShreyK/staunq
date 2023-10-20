@@ -20,22 +20,22 @@ const reduceOrderBookForAI = (array) => {
 
 const renderOrderBookData = (priceLineArray, lineColor, reducedArray, precision, threshold, chart, chartSeries) => {
     reducedArray.map((value) => {
-        const price = value[0]
-        const quantity = value[1].toPrecision(precision)
-        if (Number(value[1]) < threshold) {
+        const price = Number(Number(value[0]).toPrecision(precision))
+        const quantity = Number(Number(value[1]).toPrecision(1))
+        if (quantity < threshold) {
             return value
         }
 
         if (chart && chartSeries) {
             startTransition(() => {
                 const priceLine = chartSeries.createPriceLine({
-                    price: Number(price),
+                    price: price,
                     color: lineColor.lineColor,
-                    lineWidth: 2,
-                    lineStyle: LineStyle.Dotted,
+                    lineWidth: 1,
+                    lineStyle: LineStyle.SparseDotted,
                     axisLabelVisible: true,
                     title: quantity,
-                    axisLabelColor: lineColor.lineColor
+                    axisLabelColor: lineColor.lineColor,
                 })
                 priceLineArray.push(priceLine)
             })
