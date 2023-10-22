@@ -1,11 +1,12 @@
 import { Suspense } from "react";
-import { Chart } from "@/app/_ui/chart/chart";
+import { BaseChart } from "@/app/_ui/chart/basechart";
+import ChartActions from "@/app/_ui/chartActions/chartActions";
 
 export default function RootLayout({ children }) {
   return (
     <Suspense fallback={<div>Loading</div>}>
-      {/* <ChartActions /> */}
-      <Chart />
+      <ChartActions />
+      <BaseChart />
       {children}
     </Suspense>
   )

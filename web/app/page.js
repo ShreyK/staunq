@@ -49,7 +49,7 @@ export default async function Home(props) {
         </a>
 
         <a
-          href={`/view/BTCUSDT`}
+          href={`/view/BTCUSDT?interval=1m`}
           className={styles.card}
           target="_blank"
           rel="noopener noreferrer"

@@ -9214,7 +9214,7 @@ export const symbols = [
 ]
 
 export const intervals = {
-    "1s": "1s",
+    // "1s": "1s",
     "1m": "1m",
     "3m": "3m",
     "5m": "5m",
@@ -9232,10 +9232,10 @@ export const intervals = {
     "1M": "1M"
 }
 export const intervalsOptions = [
-    {
-        "value": "1s",
-        "label": "1s"
-    },
+    // {
+    //     "value": "1s",
+    //     "label": "1s"
+    // },
     {
         "value": "1m",
         "label": "1m"

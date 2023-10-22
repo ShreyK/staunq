@@ -1,7 +1,6 @@
-import { AppContext, AppContextProvider, useAppContext } from './_ui/context/appContext';
+import { ChartContextProvider } from './_ui/context/chartContext';
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css'
-import styles from './page.module.css'
 import { AddressBar } from './_ui/addressBar/addressBar';
 
 export const metadata = {
@@ -13,13 +12,13 @@ export default function RootLayout({ params, children, chart, chat }) {
   return (
     <html lang="en">
       <body>
-        <AppContextProvider params={params}>
+        <ChartContextProvider params={params} children={children}>
           <AddressBar />
           {children}
           {chart}
           {chat}
           <Analytics />
-        </AppContextProvider>
+        </ChartContextProvider>
       </body>
     </html>
   )

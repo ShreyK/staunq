@@ -8,7 +8,7 @@ export default function Error({ error }) {
   }, [error]);
 
   return (
-    <span>{`Chat error: a server-side exception has occurred`}</span>
+    <span>{`Chat error: could not update chat data`}</span>
   );
 }
 

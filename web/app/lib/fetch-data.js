@@ -10,6 +10,7 @@ const fetchData = cache(async (symbol) => {
             }
         }
     )
+    // console.log(res)
 
     if (res.status !== 200) {
         throw new Error(`Status ${res.status}`)

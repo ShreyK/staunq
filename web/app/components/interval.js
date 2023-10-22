@@ -1,12 +1,12 @@
 import { intervalsOptions } from './symbolUtils'
 import styles from './interval.module.css'
 import { intervals } from '@/app/_utils/symbolUtils'
-export async function Interval({ currInterval, setCurrInterval }) {
+export async function Interval({ currInterval, setCurrInterval, noBreak }) {
 
     let options = intervalsOptions
 
     return (
-        <label>Interval <br />
+        <label>Interval:
             <select id="interval" className={styles.minWidth} defaultValue={currInterval} onChange={(event) => {
                 setCurrInterval(intervals[event.target.value])
             }}>

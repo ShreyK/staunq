@@ -1,36 +1,48 @@
 'use client';
 
 import React, { Suspense } from 'react';
-import { useParams, usePathname, useSearchParams } from 'next/navigation';
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import styles from './addressBar.module.css'
 import { symbols } from '@/app/_utils/symbolUtils';
 import Link from 'next/link';
+import { Interval } from '@/app/_ui/interval/interval';
+import { useChartContext } from '../context/chartContext';
 
 function Params() {
+  const router = useRouter()
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   if (searchParams === null) {
     return <></>
   }
+  const onIntervalUpdated = (interval) => {
+    router.push(`${window.location.origin}/${pathname}?interval=${interval}`)
+  }
   return searchParams.toString().length !== 0 ? (
     <div className={styles.paramsContainer}>
-      {Array.from(searchParams.entries()).map(([key, value], index) => {
+      ? {Array.from(searchParams.entries()).map(([key, value], index) => {
         return (
           <React.Fragment key={key}>
-            <span className="px-1">
-              <span
-                key={key}
-                className={styles.paramKey}
-              >
-                {key}
-              </span>
-              <span>:</span>
-              <span
-                key={value}
-                className={styles.paramValue}
-              >
-                {value}
-              </span>
-            </span>
+            {key === "interval" ?
+              <Interval currInterval={value} setCurrInterval={onIntervalUpdated} />
+              :
+              (
+                <span className="px-1">
+                  <span
+                    key={key}
+                    className={styles.paramKey}
+                  >
+                    {key}
+                  </span>
+                  <span>:</span>
+                  <span
+                    key={value}
+                    className={styles.paramValue}
+                  >
+                    {value}
+                  </span>
+                </span>)
+            }
           </React.Fragment>
         );
       })}
@@ -39,6 +51,8 @@ function Params() {
 }
 
 export function AddressBar() {
+  const router = useRouter()
+  const { interval } = useChartContext()
   const pathname = usePathname();
   const params = useParams()
   const symbol = params?.id ?? "BTCUSDT"
@@ -67,7 +81,7 @@ export function AddressBar() {
             <span className={styles.addressBarPathContainer}>/</span>
             {symbol ?
               <select id="addressBarSymbol" className={styles.symbolSelect} defaultValue={symbol} onChange={(event) => {
-                window.location.replace(`${window.location.origin}/view/${event.target.value}`)
+                router.push(`${window.location.origin}/view/${event.target.value}?interval=${interval}`)
               }}>
                 {symbols.map((value) => {
                   return <option key={value.value} value={value.value}>{value.label}</option>
