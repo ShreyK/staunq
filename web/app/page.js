@@ -10,7 +10,6 @@ export default async function Home(props) {
       <div className={styles.center}>
         <Symbol currentSymbol={defaultSymbol} data={data} />
       </div>
-
       <div className={styles.grid}>
         <a
           href={`/about`}

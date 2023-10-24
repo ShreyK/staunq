@@ -84,7 +84,7 @@ export async function BaseChart() {
         const firstTime = trades[0].time
         const step = trades[1].time - trades[0].time
         const to = firstTime
-        const from = firstTime - step * 100
+        const from = firstTime - step * 1000
         await refetchTrades(1000, from, to, true, false)
       }
     }
@@ -112,8 +112,7 @@ export async function BaseChart() {
         },
         width: chartWidth,
         height: chartHeight,
-        leftPriceScale: { autoScale: false, ticksVisible: true, visible: true },
-        rightPriceScale: { autoScale: false, ticksVisible: true, visible: false },
+        rightPriceScale: { autoScale: false, ticksVisible: true, visible: true },
         handleScale: true,
         handleScroll: true,
         localization: {

@@ -35,7 +35,7 @@ export function ChartContextProvider({ params, children }) {
     })
   }
 
-  const refetchData = debounce(async () => {
+  const refetchData = useCallback(debounce(async () => {
     if (!symbol) {
       return;
     }
@@ -44,7 +44,7 @@ export function ChartContextProvider({ params, children }) {
       setData(data)
     })
     return data
-  }, 1000)
+  }, 1000), [symbol, interval])
 
   const refetchTrades = useCallback(debounce(async (limit, from, to, scrollBack, scrollForward) => {
     if (!symbol || !interval) {
@@ -72,7 +72,7 @@ export function ChartContextProvider({ params, children }) {
     return newDataSorted
   }, 1000), [symbol, interval])
 
-  const refetchOrderBook = debounce(async () => {
+  const refetchOrderBook = useCallback(debounce(async () => {
     if (!symbol) {
       return
     }
@@ -101,7 +101,7 @@ export function ChartContextProvider({ params, children }) {
       setOrderBook(orderBook)
     })
     return orderBook
-  }, 1000)
+  }, 1000), [symbol])
 
   useEffect(() => {
     if (symbol && interval) {
@@ -129,14 +129,17 @@ export function ChartContextProvider({ params, children }) {
     const now = Date.now()
     const day = 100 * 60 * 60 * 24
     let from = now - day
+    if (interval.includes('m') && interval !== intervals['1m']) {
+      from = now - day * 7
+    }
     if (interval.includes('m') && interval.length > 2) {
-      from -= day * 7
+      from = now - day * 30
     }
     if (interval.includes('h')) {
-      from -= day * 30
+      from = now - day * 60
     }
     if (interval.includes('d') || interval.includes('M') || interval.includes('w')) {
-      from -= day * 356
+      from = now - day * 356
     }
     return { from: from, to: now }
   }

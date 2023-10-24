@@ -12,7 +12,7 @@ export default function RootLayout({ params, children, chart, chat }) {
   return (
     <html lang="en">
       <body>
-        <ChartContextProvider params={params} children={children}>
+        <ChartContextProvider params={params}>
           <AddressBar />
           {children}
           {chart}
