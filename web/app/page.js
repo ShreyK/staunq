@@ -1,14 +1,12 @@
 import styles from './page.module.css'
 import { Symbol } from '@/app/_ui/symbol/symbol'
-import fetchData from '@/app/lib/fetch-data';
 
 export default async function Home(props) {
   const defaultSymbol = props?.params?.id ?? "BTCUSDT"
-  const data = await fetchData(defaultSymbol)
   return (
     <main className={styles.main}>
       <div className={styles.center}>
-        <Symbol currentSymbol={defaultSymbol} data={data} />
+        <Symbol currentSymbol={defaultSymbol} />
       </div>
       <div className={styles.grid}>
         <a

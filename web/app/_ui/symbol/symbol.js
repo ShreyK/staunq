@@ -4,7 +4,7 @@ import styles from './symbol.module.css'
 import { Suspense } from "react"
 import { useRouter } from 'next/navigation'
 
-export async function Symbol({ data, currentSymbol }) {
+export async function Symbol({ currentSymbol }) {
     const router = useRouter()
     let options = symbols
 
