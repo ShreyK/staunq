@@ -55,7 +55,8 @@ const renderOrderBookData = (priceLineArray, lineColor, reducedArray, precision,
                     lineStyle: LineStyle.SparseDotted,
                     axisLabelVisible: true,
                     title: quantity,
-                    axisLabelColor: lineColor.lineColor,
+                    axisLabelTextColor: lineColor.lineColor,
+                    axisLabelColor: 'transparent'
                 })
                 priceLineArray.push(priceLine)
             })

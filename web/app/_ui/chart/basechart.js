@@ -4,7 +4,7 @@ import { startTransition, useCallback, useEffect, useRef, useState } from 'react
 import { createChart, ColorType } from 'lightweight-charts';
 import { useChartContext } from '@/app/_ui/context/chartContext';
 import { debounce, isEmpty } from 'lodash';
-import { reduceTrades, colors, candlestickOptions, reduceOrderBook, renderOrderBookData, clearPricelines } from './chartUtils';
+import { colors, candlestickOptions, reduceOrderBook, renderOrderBookData, clearPricelines } from './chartUtils';
 import { usePathname } from 'next/navigation';
 
 export async function BaseChart() {
@@ -12,9 +12,6 @@ export async function BaseChart() {
   const path = usePathname()
   const { chartInstanceRef, chartSeriesInstanceRef, precision, orderBook, trades, threshold, interval, symbol, refetchTrades, refetchOrderBook } = useChartContext()
 
-  if (!trades || !orderBook || !symbol) {
-    return <></>
-  }
   const chartContainerRef = useRef(null);
   const intervalTime = 10000
   const [priceLineArray, _] = useState([])
@@ -79,6 +76,9 @@ export async function BaseChart() {
   }, 1000), [precision, threshold])
 
   const onVisibleLogicalRangeChange = useCallback(debounce(async (newVisibleLogicalRange) => {
+    if (!trades || !orderBook || !symbol) {
+      return <></>
+    }
     if (newVisibleLogicalRange !== null && !!chartInstanceRef.current && !isEmpty(trades)) {
       if (newVisibleLogicalRange.from < 0) {
         const firstTime = trades[0].time
@@ -189,8 +189,6 @@ export async function BaseChart() {
       if (trades && chartInstanceRef.current && chartSeriesInstanceRef.current) {
         chartSeriesInstanceRef.current.setData(trades);
         chartInstanceRef.current.timeScale().subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChange)
-        chartInstanceRef.current.timeScale().scrollToRealTime()
-        chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
       }
     })
     return () => {
