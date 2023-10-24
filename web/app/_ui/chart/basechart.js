@@ -22,6 +22,20 @@ export async function BaseChart() {
   const orderBookIntervalRef = useRef(null)
   const syncTimeout = useRef(null);
 
+  useEffect(() => {
+    if (chartInstanceRef.current) {
+      chartInstanceRef.current.timeScale().unsubscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChange)
+    }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
+    if (syncTimeout.current) {
+      clearTimeout(syncTimeout.current)
+    }
+    intervalRef.current = null
+    syncTimeout.current = null
+  }, [interval, symbol])
+
   const startDataFetchingInterval = useCallback(debounce(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current)
@@ -65,18 +79,16 @@ export async function BaseChart() {
   }, 1000), [precision, threshold])
 
   const onVisibleLogicalRangeChange = useCallback(debounce(async (newVisibleLogicalRange) => {
-    if (newVisibleLogicalRange !== null && !!chartInstanceRef.current) {
-      const dataSorted = chartSeriesInstanceRef.current.data()
-      let barsInfo = chartSeriesInstanceRef.current.barsInLogicalRange(newVisibleLogicalRange);
-      if (barsInfo !== null && barsInfo.barsBefore < 0) {
-        const firstTime = dataSorted[0].time
-        const step = dataSorted[1].time - dataSorted[0].time
-        const to = firstTime - step
-        const from = firstTime - step * 1000
+    if (newVisibleLogicalRange !== null && !!chartInstanceRef.current && !isEmpty(trades)) {
+      if (newVisibleLogicalRange.from < 0) {
+        const firstTime = trades[0].time
+        const step = trades[1].time - trades[0].time
+        const to = firstTime
+        const from = firstTime - step * 100
         await refetchTrades(1000, from, to, true, false)
       }
     }
-  }, 1000), [interval, symbol])
+  }, 1000), [trades, interval])
 
   //----------------------Effects----------------------//
   useEffect(() => {
@@ -148,14 +160,10 @@ export async function BaseChart() {
       window.addEventListener('resize', handleResize);
     })
     return () => {
-      startTransition(() => {
-        window.removeEventListener('resize', handleResize);
-      })
+      window.removeEventListener('resize', handleResize);
       if (chartInstanceRef.current) {
-        startTransition(() => {
-          chartInstanceRef.current.timeScale().unsubscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChange)
-          chartInstanceRef.current.remove();
-        })
+        chartInstanceRef.current.timeScale().unsubscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChange)
+        chartInstanceRef.current.remove();
       }
       chartInstanceRef.current = null
       chartSeriesInstanceRef.current = null
@@ -176,18 +184,24 @@ export async function BaseChart() {
   }, []);
 
   useEffect(() => {
+    startDataFetchingInterval(interval)
     startTransition(() => {
       if (trades && chartInstanceRef.current && chartSeriesInstanceRef.current) {
         chartSeriesInstanceRef.current.setData(trades);
+        chartInstanceRef.current.timeScale().subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChange)
         chartInstanceRef.current.timeScale().scrollToRealTime()
         chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
-        // chartInstanceRef.current.timeScale().scrollToPosition(rightMarginPosition, true)
       }
     })
-    startDataFetchingInterval(interval)
-  }, [symbol, trades, orderBook, interval])
+    return () => {
+      if (chartInstanceRef.current) {
+        chartInstanceRef.current.timeScale().unsubscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChange)
+      }
+    }
+  }, [symbol, trades, interval])
 
   useEffect(() => {
+    startOrderBookFetchingInterval()
     startTransition(() => {
       clearPricelines(priceLineArray, chartSeriesInstanceRef.current)
       const bids = reduceOrderBook(orderBook.bids, precision)
@@ -195,7 +209,11 @@ export async function BaseChart() {
       renderOrderBookData(priceLineArray, colors.upColor, bids, precision, threshold, chartInstanceRef.current, chartSeriesInstanceRef.current)
       renderOrderBookData(priceLineArray, colors.downColor, asks, precision, threshold, chartInstanceRef.current, chartSeriesInstanceRef.current)
     })
-    startOrderBookFetchingInterval()
+    return () => {
+      if (chartSeriesInstanceRef.current) {
+        clearPricelines(priceLineArray, chartSeriesInstanceRef.current)
+      }
+    }
   }, [orderBook, precision, threshold])
 
   return (<div

@@ -6,6 +6,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect } from 'react';
 import { reduceOrderBook, reduceTrades } from '@/app/_ui/chart/chartUtils';
 import { debounce, isEmpty, maxBy } from 'lodash';
+import { intervals } from '@/app/_utils/symbolUtils';
 
 const ChartContext = React.createContext(undefined);
 
@@ -50,9 +51,9 @@ export function ChartContextProvider({ params, children }) {
       return;
     }
     const trades = await fetchTrades(limit, symbol, interval, from, to);
+    const newDataSorted = reduceTrades(trades)
     React.startTransition(() => {
       if (scrollBack || scrollForward) {
-        const newDataSorted = reduceTrades(trades)
         if (newDataSorted.length === 0) {
           return
         }
@@ -61,14 +62,14 @@ export function ChartContextProvider({ params, children }) {
           return !currData.some(item => item.time === e.time);
         });
         const mergedArrays = scrollBack ? [...newData, ...currData] : [...currData, ...newData]
-        const mergedData = mergedArrays.sort((a, b) => a.time > b.time)
+        const mergedData = mergedArrays.sort((a, b) => a.time < b.time)
         setTrades(mergedData);
       }
       if (!scrollBack && !scrollForward) {
-        setTrades(reduceTrades(trades))
+        setTrades(newDataSorted)
       }
     })
-    return reduceTrades(trades)
+    return newDataSorted
   }, 1000), [symbol, interval])
 
   const refetchOrderBook = debounce(async () => {
@@ -93,9 +94,11 @@ export function ChartContextProvider({ params, children }) {
     const maxBidQuantity = Math.max(maxBid[1], maxAsk[1]).toPrecision(1)
 
     React.startTransition(() => {
+      if (maxThreshold === 0) {
+        setThreshold(maxBidQuantity / 2)
+      }
       setMaxThreshold(maxBidQuantity)
       setOrderBook(orderBook)
-      setThreshold(maxBidQuantity / 2)
     })
     return orderBook
   }, 1000)
@@ -115,7 +118,6 @@ export function ChartContextProvider({ params, children }) {
   }, [symbolParam.id])
 
   useEffect(() => {
-    console.log(search.get('interval'))
     if (search.get('interval')) {
       React.startTransition(() => {
         setInterval(search.get('interval'))
@@ -123,11 +125,28 @@ export function ChartContextProvider({ params, children }) {
     }
   }, [search])
 
+  const getInitialRange = () => {
+    const now = Date.now()
+    const day = 100 * 60 * 60 * 24
+    let from = now - day
+    if (interval.includes('m') && interval.length > 2) {
+      from -= day * 7
+    }
+    if (interval.includes('h')) {
+      from -= day * 30
+    }
+    if (interval.includes('d') || interval.includes('M') || interval.includes('w')) {
+      from -= day * 356
+    }
+    return { from: from, to: now }
+  }
+
   useEffect(() => {
     if (symbol && interval) {
       refetchData()
       refetchOrderBook()
-      refetchTrades(1000)
+      const range = getInitialRange()
+      refetchTrades(1000, range.from, range.to)
     }
   }, [symbol, interval])
 

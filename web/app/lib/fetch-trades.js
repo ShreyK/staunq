@@ -14,13 +14,10 @@ const fetchTrades = cache(async (limit, defaultSymbol, interval, startTime, endT
             }
         }
     )
-    // console.log(res)
 
     if (res.status !== 200) {
         throw new Error(`Status ${res.status}`)
     }
     return res.json()
-    // const stream = iteratorToStream(res.body)
-    // return new Response(stream)
 })
 export default fetchTrades

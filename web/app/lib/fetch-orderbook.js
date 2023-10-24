@@ -10,7 +10,6 @@ const fetchBinanceBook = cache(async (defaultSymbol) => {
             }
         }
     )
-    // console.log(res)
 
     if (res.status !== 200) {
         throw new Error(`Status ${res.status}`)
